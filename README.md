@@ -2,173 +2,257 @@
 
 **Adaptive semantic analysis for WAF resilience testing**
 
-WaffleX is a research prototype designed to evaluate Web Application Firewall (WAF) resilience by executing controlled request variants and analyzing response behavior.
+WaffleX is a research prototype for analyzing how semantically equivalent request variants are handled across modern web delivery and enforcement paths. The current implementation combines a React-based operator interface with a lightweight Node.js backend for controlled request execution, mutation-family generation, response observation, and family-level consistency analysis.
 
-The tool focuses on identifying normalization gaps, parser inconsistencies, and enforcement drift across modern web delivery stacks (e.g., CDN → reverse proxy → WAF → application).
+The project is designed to help defenders and researchers identify normalization gaps, enforcement drift, and interpretation inconsistencies across layered web defenses.
 
 ---
 
 ## Current Status
 
-This repository contains a working prototype used for demonstration and evaluation.
+This repository contains the current working prototype used for demonstration and evaluation.
 
 It is intended for:
 
-- Authorized security assessments
-- Defensive validation of WAF and reverse proxy behavior
-- Parser-drift analysis
-- Controlled lab testing and research
+- authorized security assessments
+- defensive validation of WAF and reverse-proxy behavior
+- parser-drift and normalization-gap analysis
+- controlled lab testing and research
 
 This is **not a production tool**.
 
 ---
 
+## Core Idea
+
+Most tools show whether an individual request was accepted or blocked.
+
+WaffleX adds a family-level analysis layer:
+
+- generate semantically equivalent request variants from a base payload
+- execute those variants in a controlled way
+- compare how the defensive path treats each member of the same payload family
+- summarize the result as an **Equivalence Drift Map**
+
+This makes it possible to measure whether the defensive path behaves consistently across equivalent variants, rather than only observing isolated rule hits.
+
+---
+
+## Key Prototype Features
+
+### 1. Assessment Module
+Interactive operator workflow for:
+
+- target URL selection
+- HTTP method selection
+- injection points in URL, headers, cookies, and body
+- payload corpus selection
+- mutation-depth control
+- adaptive mutation mode
+
+### 2. Adaptive Mutation Planner
+WaffleX can generate equivalent request families from a single base payload using progressively richer transformations such as:
+
+- baseline
+- URL encoding
+- double encoding
+- delimiter encoding
+- null suffix
+- path suffix
+- mixed delimiters
+- whitespace suffix
+- backslash mutation
+
+### 3. Live Stream Engine
+Per-request execution visibility including:
+
+- base payload
+- mutation strategy
+- HTTP status
+- detection signal
+- differential classification
+- latency
+
+### 4. Equivalence Drift Map
+The differentiating analysis layer in WaffleX.
+
+For each payload family, WaffleX summarizes:
+
+- accepted outcomes
+- enforced outcomes
+- anomalous outcomes
+- number of unique outcome patterns
+- family size
+- **Semantic Consistency Score**
+
+### 5. Semantic Consistency Score
+A family-level metric that estimates how uniformly the defensive path handled semantically equivalent variants.
+
+High consistency suggests equivalent variants were treated similarly.
+
+Lower consistency suggests interpretation drift, normalization mismatch, or inconsistent enforcement behavior.
+
+### 6. Likely Interpretation Fault Labels
+WaffleX assigns lightweight family-level interpretations such as:
+
+- `SEMANTIC_REASONING_GAP`
+- `DEEP_INSPECTION_VARIANCE`
+- `RESPONSE_INTERPRETATION_DRIFT`
+- `UNIFORM_PASS_BEHAVIOR`
+- `CONSISTENT_ENFORCEMENT`
+
+These are heuristic labels intended to support defensive triage and investigation.
+
+### 7. Resilience Testing
+A separate module for repeated baseline requests to observe:
+
+- enforcement transitions
+- rate-limit behavior
+- latency drift
+- accepted vs enforced request ratios
+
+### 8. Payload Corpus Editor
+Filesystem-backed corpus editing for reusable request-variant sets.
+
+---
+
 ## Repository Structure
 
-```
+```text
 wafflex/
-├── backend/        # Node.js (Express) API
-├── frontend/       # React (Vite) UI
+├── backend/        # Node.js / Express API and request execution backend
+├── frontend/       # React / Vite operator interface
 ├── docs/           # Architecture notes
-├── screenshots/    # Demo images
+├── screenshots/    # Demo screenshots
 ├── README.md
+├── SECURITY.md
+├── CONTRIBUTING.md
 ├── LICENSE
 └── .gitignore
 ```
 
 ---
 
-## Features (Prototype)
-
-- Request mutation and injection engine
-- Injection points:
-  - URL parameters
-  - Headers
-  - Cookies
-  - Request body
-- Payload corpus management (LFI, XSS, etc.)
-- Real-time execution logs
-- Response analysis:
-  - HTTP status codes
-  - Latency measurements
-- Detection heuristics:
-  - **BYPASS POTENTIAL** → unexpected 200 responses
-  - **ANOMALY** → timing deviations
-- Optional proxy routing support
-
----
-
 ## How It Works
 
-1. Define a target with an injection marker:
-
-```
-https://target.com/page?input=[X]
-```
-
-2. WaffleX replaces `[X]` with payloads  
-3. Requests are sent via backend  
-4. Responses are analyzed  
-5. Results are streamed to UI  
+1. Select a target and define an injection point using `[X]`
+2. Load a payload corpus
+3. Generate a mutation family for each base payload
+4. Execute request variants through the backend
+5. Collect status, latency, and response metadata
+6. Stream individual events to the log console
+7. Group variants by base payload
+8. Compute family-level consistency summaries
+9. Render the result in the **Equivalence Drift Map**
 
 ---
 
 ## Quick Start
 
-### 1. Backend
+### Backend
 
-```
+```bash
 cd backend
 npm install
 node server.js
 ```
 
-Runs on:
-```
+The backend listens on:
+
+```text
 http://localhost:3001
 ```
 
----
+### Frontend
 
-### 2. Frontend
-
-```
+```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-Runs on default Vite port (usually 5173)
+The frontend runs on the default Vite development port, usually:
+
+```text
+http://localhost:5173
+```
 
 ---
 
-## API Overview
+## API Summary
 
-- `GET /api/health` → health check  
-- `POST /api/check-ip` → check outgoing IP (proxy aware)  
-- `POST /api/proxy` → send request with payload  
-- `GET /api/payloads` → list payload files  
-- `GET /api/payloads/:file` → read payload file  
-- `PUT /api/payloads/:file` → update payload file  
+- `GET /api/health` — health check
+- `POST /api/check-ip` — resolves egress IP information, optionally through proxy flow
+- `POST /api/proxy` — relays a controlled request and returns response metadata
+- `GET /api/payloads` — lists payload corpus files
+- `GET /api/payloads/:filename` — reads a corpus file
+- `PUT /api/payloads/:filename` — updates a corpus file
 
 ---
 
-## Example
+## Example Test Target
 
-Target:
+For a safe, public demo target:
 
-```
-https://httpbin.org/get?test=[X]
-```
-
-Payload:
-
-```
-../../../../etc/passwd
+```text
+https://httpbin.org/anything?input=[X]
 ```
 
-WaffleX sends variations and evaluates response behavior.
+This allows WaffleX to demonstrate mutation-family execution and family-level consistency analysis without requiring a real protected environment.
 
 ---
 
 ## Demo Screenshots
 
-### UI Overview
-![UI](screenshots/ui-overview.png)
+### Assessment Module Overview
+![Assessment Module](screenshots/01-assessment-overview.png)
 
-### LFI Test Example
-![LFI](screenshots/lfi-demo.png)
+### Equivalence Drift Map Populated
+![Equivalence Drift Map](screenshots/02-equivalence-drift-map.png)
 
-### XSS Test Example
-![XSS](screenshots/xss-demo.png)
+### Live Stream Engine with Adaptive Variants
+![Live Stream Engine](screenshots/03-live-stream-engine.png)
 
----
+### Resilience Testing Module
+![Resilience Testing](screenshots/04-resilience-testing.png)
 
-## Safety Notice
-
-WaffleX must only be used:
-
-- On systems you own, or
-- Where you have explicit authorization
-
-Do **not** use this tool for unauthorized testing.
+### Payload Corpus Editor
+![Payload Corpus Editor](screenshots/05-payload-corpus-editor.png)
 
 ---
 
-## Reviewer Notes (Black Hat Arsenal)
+## Reviewer Notes
 
-This repository contains a functional prototype including:
+This repository is being provided so reviewers can inspect the current implementation directly.
 
-- Working frontend and backend
-- Payload execution engine
-- Response analysis logic
-- Demonstration-ready UI
+The current prototype includes:
 
-The goal is to demonstrate:
+- working frontend and backend components
+- adaptive request-variant execution
+- payload-family generation
+- live request/result logging
+- family-level semantic consistency analysis
+- Equivalence Drift Map visualization
+- a separate resilience testing workflow
+- payload corpus editing
 
-- parser inconsistencies
-- enforcement gaps
-- behavioral differences in layered defenses
+The analysis labels and consistency scoring are heuristic and intended for research and defensive validation, not as definitive attribution.
+
+---
+
+## Safety and Intended Use
+
+WaffleX is intended for **authorized environments only**.
+
+It should be used for:
+
+- defensive validation
+- internal testing
+- research
+- lab work
+- reproducible inspection-path analysis
+
+Do **not** use this tool against systems without explicit permission.
 
 ---
 

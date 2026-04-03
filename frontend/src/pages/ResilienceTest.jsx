@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Activity, Play, Square, AlertTriangle } from 'lucide-react';
 import LogConsole from '../components/LogConsole';
-import { sendProxyRequest } from '../utils/test-runner';
 
 const API_BASE_URL = 'http://localhost:3001/api';
 
@@ -11,9 +10,6 @@ const ResilienceTest = () => {
     const [method, setMethod] = useState('GET');
     const [requestCount, setRequestCount] = useState(100);
     const [intervalMs, setIntervalMs] = useState(50);
-    const [customHeaders, setCustomHeaders] = useState('');
-    const [cookies, setCookies] = useState('');
-    const [postBody, setPostBody] = useState('');
     const [isRunning, setIsRunning] = useState(false);
     const [logs, setLogs] = useState([]);
     const [progress, setProgress] = useState({ current: 0 });
@@ -37,7 +33,6 @@ const ResilienceTest = () => {
 
     const handleRunTest = async () => {
         if (!targetUrl || requestCount <= 0) return;
-
         setIsRunning(true);
         setLogs([]);
         setStats({ passed: 0, blocked: 0, other: 0 });
@@ -45,18 +40,11 @@ const ResilienceTest = () => {
 
         abortControllerRef.current = new AbortController();
         const signal = abortControllerRef.current.signal;
-        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+        const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-        let parsedHeaders = {};
-        if (customHeaders) {
-            try {
-                parsedHeaders = JSON.parse(customHeaders);
-            } catch {
-                console.warn('Invalid custom headers JSON');
-            }
-        }
+        let baseline = null;
 
-        for (let i = 0; i < requestCount; i++) {
+        for (let i = 0; i < requestCount; i += 1) {
             if (signal.aborted) break;
             setProgress({ current: i + 1 });
 
@@ -66,27 +54,72 @@ const ResilienceTest = () => {
                 finalUrl = `${targetUrl}${separator}t=${Date.now()}_${i}`;
             }
 
-            const activeBody = (method === 'POST' || method === 'PUT') ? (postBody || thresholdPayload) : undefined;
-            const result = await sendProxyRequest({
+            const startTime = Date.now();
+            const result = await axios.post(`${API_BASE_URL}/proxy`, {
                 targetUrl: finalUrl,
                 method,
-                headers: parsedHeaders,
-                cookies,
-                payload: activeBody,
-            });
+                headers: {},
+                cookies: '',
+                payload: ['POST', 'PUT'].includes(method) ? thresholdPayload : undefined,
+            }).then((res) => res.data).catch((error) => ({
+                status: 500,
+                latency: Date.now() - startTime,
+                responseLength: 0,
+                fingerprint: 'transport_error',
+                wafSignals: ['TRANSPORT_ERROR'],
+                error: error.message,
+            }));
 
-            setLogs(prev => [...prev, {
+            if (!baseline) baseline = result;
+            const signalName = [403, 406].includes(result.status)
+                ? 'ENFORCED'
+                : result.status === 429
+                    ? 'RATE_LIMITED'
+                    : result.latency > Math.max((baseline.latency || 0) * 1.5, 1000)
+                        ? 'LATENCY ANOMALY'
+                        : 'BASELINE OBSERVATION';
+
+            const interpretation = result.status !== baseline.status
+                ? 'ENFORCEMENT_DRIFT'
+                : result.latency > Math.max((baseline.latency || 0) * 1.5, 1000)
+                    ? 'DEEP_INSPECTION_VARIANCE'
+                    : 'BASELINE_CONSISTENT';
+
+            const attribution = result.status === 429
+                ? 'RATE_LIMIT_LAYER'
+                : [403, 406].includes(result.status)
+                    ? 'EDGE_WAF'
+                    : interpretation === 'DEEP_INSPECTION_VARIANCE'
+                        ? 'DEEP_INSPECTION'
+                        : 'UNDETERMINED';
+
+            setLogs((prev) => [...prev, {
                 time: new Date().toLocaleTimeString(),
-                payload: `Baseline Request [Iteration: ${i + 1}]`,
+                basePayload: `Baseline Request [Iteration ${i + 1}]`,
+                payload: `Baseline Request [Iteration ${i + 1}]`,
+                mutationLabel: 'BASELINE',
+                mutationDepth: 0,
                 status: result.status,
                 latency: result.latency,
+                signal: signalName,
+                attribution,
+                reason: interpretation === 'ENFORCEMENT_DRIFT'
+                    ? 'Repeated baseline requests shifted from accepted behavior into explicit enforcement'
+                    : interpretation === 'DEEP_INSPECTION_VARIANCE'
+                        ? 'Repeated baseline requests triggered a meaningful latency increase'
+                        : 'Baseline request remained behaviorally stable',
+                differential: {
+                    interpretation,
+                    confidence: interpretation === 'BASELINE_CONSISTENT' ? 'LOW' : 'MEDIUM',
+                    signals: interpretation === 'BASELINE_CONSISTENT' ? ['CONSISTENT'] : ['STATUS_OR_LATENCY_DRIFT'],
+                },
             }]);
 
-            setStats(prev => {
+            setStats((prev) => {
                 const next = { ...prev };
-                if (result.status >= 200 && result.status < 300) next.passed++;
-                else if ([403, 406, 429].includes(result.status)) next.blocked++;
-                else next.other++;
+                if (result.status >= 200 && result.status < 300) next.passed += 1;
+                else if ([403, 406, 429].includes(result.status)) next.blocked += 1;
+                else next.other += 1;
                 return next;
             });
 
@@ -108,16 +141,15 @@ const ResilienceTest = () => {
                 <div>
                     <h3 className="text-sm font-bold text-amber-900">Resilience and Rate-Limit Analysis</h3>
                     <p className="text-xs text-amber-700 mt-1 leading-relaxed">
-                        Sends repeated baseline requests in an authorized environment to observe enforcement transitions, latency drift,
-                        and rate-limiting behavior. Watch for movement from accepted traffic to explicit enforcement responses.
+                        Sends repeated baseline requests in an authorized environment to observe enforcement transitions, latency drift, and rate-limiting behavior.
                     </p>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 shrink-0">
                 <div className="lg:col-span-3 bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-center">
-                    <div className="flex items-center justify-between w-full">
-                        <div className="flex space-x-4 flex-1 mr-8">
+                    <div className="flex items-center justify-between w-full gap-4">
+                        <div className="flex space-x-4 flex-1 mr-4">
                             <div className="w-32">
                                 <label className="block text-xs font-semibold text-slate-600 mb-1">Method</label>
                                 <select value={method} onChange={(e) => setMethod(e.target.value)} className="w-full text-sm px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-800 font-medium">
@@ -130,14 +162,14 @@ const ResilienceTest = () => {
                             </div>
                             <div className="w-24">
                                 <label className="block text-xs font-semibold text-slate-600 mb-1">Count</label>
-                                <input type="number" value={requestCount} onChange={(e) => setRequestCount(parseInt(e.target.value) || 0)} className="w-full text-sm px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-800 font-medium text-center" />
+                                <input type="number" value={requestCount} onChange={(e) => setRequestCount(parseInt(e.target.value, 10) || 0)} className="w-full text-sm px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-800 font-medium text-center" />
                             </div>
                             <div className="w-24">
                                 <label className="block text-xs font-semibold text-slate-600 mb-1">Delay (ms)</label>
-                                <input type="number" value={intervalMs} onChange={(e) => setIntervalMs(parseInt(e.target.value) || 0)} className="w-full text-sm px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-800 font-medium text-center" />
+                                <input type="number" value={intervalMs} onChange={(e) => setIntervalMs(parseInt(e.target.value, 10) || 0)} className="w-full text-sm px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-800 font-medium text-center" />
                             </div>
                         </div>
-                        <div className="w-40 shrink-0 border-l border-slate-100 pl-8">
+                        <div className="w-40 shrink-0 border-l border-slate-100 pl-6">
                             {isRunning ? (
                                 <button onClick={handleStop} className="w-full bg-red-100 hover:bg-red-200 text-red-700 py-3 rounded-lg text-sm font-bold transition-colors flex items-center justify-center border border-red-200">
                                     <Square size={16} className="mr-2" fill="currentColor" /> Stop
@@ -149,22 +181,6 @@ const ResilienceTest = () => {
                             )}
                         </div>
                     </div>
-                    {(method === 'POST' || method === 'PUT') && (
-                        <div className="mt-5 pt-5 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-1">
-                            <div>
-                                <label className="block text-xs font-semibold text-slate-600 mb-1 font-mono">Custom Headers (JSON)</label>
-                                <textarea value={customHeaders} onChange={(e) => setCustomHeaders(e.target.value)} placeholder='{"X-Forwarded-For": "127.0.0.1"}' className="w-full text-xs px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-800 font-mono h-20 custom-scrollbar" spellCheck="false" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-semibold text-slate-600 mb-1">Cookies</label>
-                                <textarea value={cookies} onChange={(e) => setCookies(e.target.value)} placeholder="session_id=123;" className="w-full text-xs px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-800 font-mono h-20 custom-scrollbar" spellCheck="false" />
-                            </div>
-                            <div className="md:col-span-2">
-                                <label className="block text-xs font-semibold text-slate-600 mb-1">Request Body</label>
-                                <textarea value={postBody} onChange={(e) => setPostBody(e.target.value)} placeholder='{"test": 1}' className="w-full text-xs px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-800 font-mono h-20 custom-scrollbar" spellCheck="false" />
-                            </div>
-                        </div>
-                    )}
                 </div>
 
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
@@ -182,7 +198,7 @@ const ResilienceTest = () => {
                     </div>
                 </div>
             </div>
-            <LogConsole logs={logs} isRunning={isRunning} progress={progress} total={requestCount} />
+            <LogConsole logs={logs} />
         </div>
     );
 };

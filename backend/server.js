@@ -16,6 +16,34 @@ const payloadsDir = path.join(__dirname, 'payloads');
 app.use(cors({ origin: ALLOWED_ORIGIN }));
 app.use(express.json({ limit: MAX_BODY_SIZE }));
 
+const safeUrl = (input) => {
+    try {
+        const parsed = new URL(input);
+        if (!['http:', 'https:'].includes(parsed.protocol)) return null;
+        return parsed.toString();
+    } catch {
+        return null;
+    }
+};
+
+const inferWafSignals = (response) => {
+    const headers = response.headers || {};
+    const body = typeof response.data === 'string' ? response.data.toLowerCase() : JSON.stringify(response.data || {}).toLowerCase();
+    const signals = [];
+
+    if (headers.server && /cloudflare|akamai|imperva|sucuri|awswaf|f5/i.test(headers.server)) signals.push('WAF_BRAND_HEADER');
+    if (headers['x-cache'] || headers['cf-ray'] || headers['x-sucuri-id']) signals.push('EDGE_INTERMEDIARY');
+    if (/access denied|forbidden|blocked|request rejected|malicious/i.test(body)) signals.push('BLOCK_PAGE_BODY');
+    if ([403, 406, 429].includes(response.status)) signals.push('ENFORCEMENT_STATUS');
+    return signals;
+};
+
+const fingerprintResponse = (response) => {
+    const contentType = response.headers?.['content-type'] || 'unknown';
+    const location = response.headers?.location ? 'redir' : 'noredir';
+    return `${response.status}:${contentType.split(';')[0]}:${location}`;
+};
+
 app.get('/api/health', (req, res) => {
     res.json({ ok: true, service: 'wafflex-backend', port: PORT });
 });
@@ -43,14 +71,16 @@ app.post('/api/proxy', async (req, res) => {
     const startTime = Date.now();
     try {
         const { targetUrl, method, headers, cookies, payload } = req.body;
-        if (!targetUrl) return res.status(400).json({ error: 'targetUrl is required' });
+        const normalizedUrl = safeUrl(targetUrl);
+        if (!normalizedUrl) return res.status(400).json({ error: 'A valid http/https targetUrl is required' });
 
         const axiosConfig = {
-            url: targetUrl,
+            url: normalizedUrl,
             method: method || 'GET',
             headers: { ...headers },
             validateStatus: () => true,
             timeout: REQUEST_TIMEOUT_MS,
+            maxRedirects: 0,
         };
 
         if (cookies) axiosConfig.headers.Cookie = cookies;
@@ -58,12 +88,32 @@ app.post('/api/proxy', async (req, res) => {
 
         const response = await axios(axiosConfig);
         const latency = Date.now() - startTime;
+        const responseText = typeof response.data === 'string' ? response.data : JSON.stringify(response.data || {});
+        const responseLength = responseText.length;
+        const wafSignals = inferWafSignals(response);
+        const fingerprint = fingerprintResponse(response);
 
-        res.json({ status: response.status, latency, data: response.data, headers: response.headers });
+        res.json({
+            status: response.status,
+            latency,
+            data: response.data,
+            headers: response.headers,
+            responseLength,
+            wafSignals,
+            fingerprint,
+        });
     } catch (error) {
         const latency = Date.now() - startTime;
         console.error(`Relay error to ${req.body.targetUrl}:`, error.message);
-        res.status(500).json({ status: 500, latency, error: error.message, isHardError: true });
+        res.status(500).json({
+            status: 500,
+            latency,
+            error: error.message,
+            isHardError: true,
+            responseLength: 0,
+            wafSignals: ['TRANSPORT_ERROR'],
+            fingerprint: 'transport_error',
+        });
     }
 });
 
@@ -73,7 +123,7 @@ app.get('/api/payloads', (req, res) => {
             console.error('Error reading payload directory:', err);
             return res.json(['sqli.txt', 'xss.txt', 'lfi.txt', 'rce.txt', 'threshold.txt']);
         }
-        res.json(files.filter(f => f.endsWith('.txt')));
+        res.json(files.filter((f) => f.endsWith('.txt')));
     });
 });
 
