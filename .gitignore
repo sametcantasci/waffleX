@@ -1,0 +1,21 @@
+# dependencies
+backend/node_modules/
+frontend/node_modules/
+
+# build output
+frontend/dist/
+
+# logs
+*.log
+logs/
+
+# env
+.env
+.env.*
+!.env.example
+
+# editor
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

